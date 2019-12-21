@@ -33,7 +33,8 @@ class Intcode:
             return out
         return out[0]
 
-    def _set_mode(self, val, mode):
+    def _get_value(self, val, mode):
+        # get the value based on the mode
         if mode == 0:
             return self.data[val]
         if mode == 1:
@@ -41,13 +42,14 @@ class Intcode:
         if mode == 2:
             return self.data[self.rel_base + val]
 
-    def _set_c_mode(self, val, mode):
+    def _set_value(self, data_val, mode, val):
+        #sets a memory value based on an mode
         if mode == 0:
-            return self.data[val]
+            self.data[data_val] = val
         if mode == 1:
-            return val
+            raise ValueError('Mode 1 cannot be used to set')
         if mode == 2:
-            return self.rel_base + val
+            self.data[self.rel_base + data_val] = val
 
     def eval(self, user_input=None):
         compute = self.eval_feedback(
@@ -70,23 +72,20 @@ class Intcode:
             if op == 1:
                 # plus
                 a, b, c = self._inputs(3)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
-                C = self._set_c_mode(c, mode_c)
-                self.data[C] = A + B
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
+                self._set_value(c, mode_c, A + B)
 
             elif op == 2:
                 # mul
                 a, b, c = self._inputs(3)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
-                C = self._set_c_mode(c, mode_c)
-                self.data[C] = A * B
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
+                self._set_value(c, mode_c, A * B)
 
             elif op == 3:
                 # input
                 a = self._inputs(1)
-                A = self._set_c_mode(a, mode_a)
                 if self.user_input:
                     data_in = self.user_input.pop()
                 elif feedback_mode:
@@ -94,12 +93,12 @@ class Intcode:
                 else:
                     data_in = int(input('input: '))
 
-                self.data[a] = data_in
+                self._set_value(a, mode_a, data_in)
 
             elif op == 4:
                 # output
                 a = self._inputs(1)
-                data_out = self._set_mode(a, mode_a)
+                data_out = self._get_value(a, mode_a)
                 self.data_out = data_out
                 if feedback_mode:
                     Intcode.feedback = self.data_out
@@ -109,45 +108,43 @@ class Intcode:
             elif op == 5:
                 # jump-in-true
                 a, b = self._inputs(2)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
                 if A:
                     self.pointer = B
 
             elif op == 6:
                 # jump-in-false
                 a, b = self._inputs(2)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
                 if not A:
                     self.pointer = B
 
             elif op == 7:
                 # less than
                 a, b, c = self._inputs(3)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
-                C = self._set_c_mode(c, mode_c)
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
                 if A < B:
-                    self.data[C] = 1
+                    self._set_value(c, mode_c, 1)
                 else:
-                    self.data[C] = 0
+                    self._set_value(c, mode_c, 0)
 
             elif op == 8:
                 # equal
                 a, b, c = self._inputs(3)
-                A = self._set_mode(a, mode_a)
-                B = self._set_mode(b, mode_b)
-                C = self._set_c_mode(c, mode_c)
+                A = self._get_value(a, mode_a)
+                B = self._get_value(b, mode_b)
                 if A == B:
-                    self.data[C] = 1
+                    self._set_value(c, mode_c, 1)
                 else:
-                    self.data[C] = 0
+                    self._set_value(c, mode_c, 0)
 
             elif op == 9:
                 # adjust rel base
                 a = self._inputs(1)
-                A = self._set_mode(a, mode_a)
+                A = self._get_value(a, mode_a)
                 self.rel_base += A
 
             op = self.data[self.pointer]
