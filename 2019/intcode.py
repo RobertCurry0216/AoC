@@ -60,6 +60,7 @@ class Intcode:
             except StopIteration:
                 return self.data_out
 
+
     def eval_feedback(self, user_input=None, feedback_mode=True):
         op = self.data[0]
         self.user_input = user_input
@@ -102,7 +103,7 @@ class Intcode:
                 self.data_out = data_out
                 if feedback_mode:
                     Intcode.feedback = self.data_out
-                    yield
+                    yield self.data_out
                 print(f'Output: {data_out}')
 
             elif op == 5:
