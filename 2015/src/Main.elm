@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Html exposing (text, div)
 
-import Day01.Challenge exposing (part1, part2)
-import Day01.Input exposing (input)
+import Day02.Challenge exposing (part1, part2)
+import Day02.Input exposing (input)
 
 main : Html.Html msg
 main =
