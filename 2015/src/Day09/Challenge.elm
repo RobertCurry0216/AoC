@@ -58,16 +58,15 @@ addToMap path map =
   |> Dict.insert path.to toMap
 
 
-getPathLengths : String -> Set String -> PathMap -> List Int
-getPathLengths location visited map =
+getPathLengths : PathMap -> Set String -> String -> List Int
+getPathLengths map visited location =
   let
-    branches =
-      Dict.get location map
-      |> Maybe.withDefault (Dict.empty)
-
-    toVisit =
+    branch =
       Dict.get location map
       |> Maybe.withDefault Dict.empty
+
+    toVisit =
+      branch
       |> Dict.keys
       |> Set.fromList
       |> \s -> Set.diff s visited
@@ -76,16 +75,30 @@ getPathLengths location visited map =
     updatedVisited =
       Set.insert location visited
   in
-  if List.length toVisit == 0 then
-    []
+  if List.isEmpty toVisit then
+    [0]
   else
     toVisit
-    |> List.map (\b ->
-      Dict.get b branches
-      |> Maybe.withDefault 0
+    |> List.map (\l ->
+      getPathLengths map updatedVisited l
+      |> List.map (\dist -> 
+        Dict.get l branch
+        |> Maybe.withDefault 0
+        |> (+) dist
+      )
     )
+    |> List.concat
 
 
+
+getAllPathLengths : PathMap -> List Int
+getAllPathLengths map =
+  Dict.keys map
+  |> List.map (getPathLengths map Set.empty)
+  |> List.concat
+
+
+part1 : String -> String
 part1 input = 
   String.lines input
   |> List.filterMap (\v ->
@@ -94,6 +107,26 @@ part1 input =
     Err _ -> Nothing
   )
   |> List.foldl addToMap Dict.empty
-  |> Dict.map (\k v ->
-    
+  |> getAllPathLengths
+  |> List.minimum
+  |> \v ->
+    case v of
+    Just i -> String.fromInt i
+    Nothing -> "no value"
+
+
+part2 : String -> String
+part2 input = 
+  String.lines input
+  |> List.filterMap (\v ->
+    case run route v of
+    Ok value -> Just value
+    Err _ -> Nothing
   )
+  |> List.foldl addToMap Dict.empty
+  |> getAllPathLengths
+  |> List.maximum
+  |> \v ->
+    case v of
+    Just i -> String.fromInt i
+    Nothing -> "no value"
