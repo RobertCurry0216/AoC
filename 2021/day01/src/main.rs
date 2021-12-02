@@ -1,3 +1,5 @@
+use itermore::IterMore;
+
 fn main() {
     const INPUT: &str = include_str!("input.txt");
     //println!("input: {:?}", INPUT);
@@ -6,40 +8,30 @@ fn main() {
 }
 
 #[allow(unused)]
-fn solve_problem1(input: &str) -> i32 {
-    let mut prev = 0;
-    let mut count = 0;
-    for l in input.lines() {
-        let v: i32 = l.trim().parse().expect("error parsing line"); 
-        if v > prev {
-            count += 1;
-        }
-        prev = v;
-    }
-    count - 1
+fn solve_problem1(input: &str) -> usize {
+    input
+        .lines()
+        .map(str::parse)
+        .map(Result::unwrap)
+        .collect::<Vec<usize>>()
+        .iter()
+        .windows()
+        .filter(|[a, b]| a < b)
+        .count()
+
 }
 
 #[allow(unused)]
-fn solve_problem2(input: &str) -> i32 {
-    let mut sum = 0;
-    let mut prev_sum = 0;
-    let mut count = 0;
-    let mut a = 0;
-    let mut b = 0;
-    let mut c = 0;
-
-    for l in input.lines() {
-        let v: i32 = l.trim().parse().expect("error parsing line"); 
-        sum = sum + v - a;
-        if sum > prev_sum {
-            count += 1;
-        }
-        prev_sum = sum;
-        a = b;
-        b = c;
-        c = v;
-    }
-    count - 3
+fn solve_problem2(input: &str) -> usize {
+    input
+        .lines()
+        .map(str::parse)
+        .map(Result::unwrap)
+        .collect::<Vec<usize>>()
+        .iter()
+        .windows()
+        .filter(|[a, _, _, b]| a < b)
+        .count()
 }
 
 #[cfg(test)]
