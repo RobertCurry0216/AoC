@@ -5,21 +5,37 @@ fn main() {
     println!("problem2: {}", solve_problem2(INPUT));
 }
 
+enum Instruction {
+    Forward(usize),
+    Down(usize),
+    Up(usize)
+}
+
+fn parse_input(input: &str) -> Vec<Instruction> {
+    input
+        .lines()
+        .map(|l|{
+            let split = l.split_whitespace().collect::<Vec<&str>>();
+            match split[0] {
+                "forward" => Instruction::Forward(split[1].trim().parse().unwrap()),
+                "down" => Instruction::Down(split[1].trim().parse().unwrap()),
+                "up" => Instruction::Up(split[1].trim().parse().unwrap()),
+                _ => unreachable!(),
+            }
+        }).collect::<Vec<Instruction>>()
+}
+
 #[allow(unused)]
 fn solve_problem1(input: &str) -> usize {
     let mut depth = 0;
     let mut horiz = 0;
+    let instructions = parse_input(input);
 
-    for line in input.lines() {
-        let split = line.split_whitespace().collect::<Vec<&str>>();
-        let dir = split[0];
-        let dist: usize = split[1].trim().parse().expect("error parsing dist");
-
-        match dir {
-            "forward" => horiz += dist,
-            "down" => depth += dist,
-            "up" => depth -= dist,
-            _ => panic!(),
+    for instruction in instructions {
+        match instruction {
+            Instruction::Forward(value) => horiz += value,
+            Instruction::Down(value) => depth += value,
+            Instruction::Up(value) => depth -= value,
         }
     }
 
@@ -31,20 +47,16 @@ fn solve_problem2(input: &str) -> usize {
     let mut depth = 0;
     let mut horiz = 0;
     let mut aim = 0;
+    let instructions = parse_input(input);
 
-    for line in input.lines() {
-        let split = line.split_whitespace().collect::<Vec<&str>>();
-        let dir = split[0];
-        let dist: usize = split[1].trim().parse().expect("error parsing dist");
-
-        match dir {
-            "forward" => {
-                horiz += dist;
-                depth += aim * dist;
+    for instruction in instructions {
+        match instruction {
+            Instruction::Forward(value) => {
+                horiz += value;
+                depth += aim * value;
             },
-            "down" => aim += dist,
-            "up" => aim -= dist,
-            _ => panic!(),
+            Instruction::Down(value) => aim += value,
+            Instruction::Up(value) => aim -= value,
         }
     }
 
