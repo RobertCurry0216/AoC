@@ -19,10 +19,10 @@ fn parse_input(input: &str) -> Vec<Line> {
     for m in re.captures_iter(input) {
         lines.push(
             Line(
-                m[1].parse::<i32>().unwrap(),
-                m[2].parse::<i32>().unwrap(),
-                m[3].parse::<i32>().unwrap(),
-                m[4].parse::<i32>().unwrap(),
+                m[1].parse().unwrap(),
+                m[2].parse().unwrap(),
+                m[3].parse().unwrap(),
+                m[4].parse().unwrap(),
             )
         );
     }
@@ -59,30 +59,16 @@ fn solve_problem2(input: &str) -> i32 {
     let mut board = vec![0; 1000*1000];
 
     for Line(x1, y1, x2, y2) in lines {
-        if (y1 == y2) {
-            let start = cmp::min(x1, x2);
-            let end = cmp::max(x1, x2);
-            for x in start..=end {
-                board[(x + y1*1000) as usize] += 1;
-            }
-        } else if (x1 == x2) {
-            let start = cmp::min(y1, y2);
-            let end = cmp::max(y1, y2);
-            for y in start..=end {
-                board[(x1 + y*1000) as usize] += 1;
-            }
-        } else {
-            let mut x: i32 = x1 as i32;
-            let mut y: i32 = y1 as i32;
-            let dx: i32 = if x1 < x2 {1} else {-1};
-            let dy: i32 = if y1 < y2 {1} else {-1};
-            let l = if x1 < x2 {x2 - x1} else {x1 - x2};
+        let mut x = x1;
+        let mut y = y1;
+        let dx = (x2 - x1).signum();
+        let dy = (y2 - y1).signum();
+        let l = if x1 == x2 {(y1 - y2).abs()} else {(x1 - x2).abs()};
 
-            for _ in 0..=l {
-                board[(x+ y*1000) as usize] += 1;
-                x += dx;
-                y += dy;
-            }
+        for _ in 0..=l {
+            board[(x + y*1000) as usize] += 1;
+            x += dx;
+            y += dy;
         }
     }
 
