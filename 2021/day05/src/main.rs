@@ -4,27 +4,13 @@ use std::cmp;
 fn main() {
     const INPUT: &str = include_str!("input.txt");
     //println!("input: {:?}", INPUT);
+    println!("--- Day 5: Hydrothermal Venture ---");
     println!("problem1: {}", solve_problem1(INPUT));
     println!("problem2: {}", solve_problem2(INPUT));
 }
 
 #[derive(Debug)]
-struct Line {
-    x1: u32,
-    y1: u32,
-    x2: u32,
-    y2: u32,
-}
-
-impl Line {
-    fn is_horizontal(&self) -> bool {
-        self.y1 == self.y2
-    }
-
-    fn is_vertical(&self) -> bool {
-        self.x1 ==self.x2
-    }
-}
+struct Line(i32, i32, i32, i32);
 
 fn parse_input(input: &str) -> Vec<Line> {
     let mut lines = vec![];
@@ -32,34 +18,34 @@ fn parse_input(input: &str) -> Vec<Line> {
 
     for m in re.captures_iter(input) {
         lines.push(
-            Line{
-                x1: m[1].parse::<u32>().unwrap(),
-                y1: m[2].parse::<u32>().unwrap(),
-                x2: m[3].parse::<u32>().unwrap(),
-                y2: m[4].parse::<u32>().unwrap(),
-            }
+            Line(
+                m[1].parse::<i32>().unwrap(),
+                m[2].parse::<i32>().unwrap(),
+                m[3].parse::<i32>().unwrap(),
+                m[4].parse::<i32>().unwrap(),
+            )
         );
     }
     lines
 }
 
 #[allow(unused)]
-fn solve_problem1(input: &str) -> u32 {
+fn solve_problem1(input: &str) -> i32 {
     let lines = parse_input(input);
     let mut board = vec![0; 1000*1000];
 
-    for line in lines {
-        if line.is_horizontal() {
-            let start = cmp::min(line.x1, line.x2);
-            let end = cmp::max(line.x1, line.x2);
+    for Line(x1, y1, x2, y2) in lines {
+        if y1 == y2 { // horizontal
+            let start = cmp::min(x1, x2);
+            let end = cmp::max(x1, x2);
             for x in start..=end {
-                board[(x + line.y1*1000) as usize] += 1;
+                board[(x + y1*1000) as usize] += 1;
             }
-        } else if line.is_vertical() {
-            let start = cmp::min(line.y1, line.y2);
-            let end = cmp::max(line.y1, line.y2);
+        } else if x1 == x2 { // vertical
+            let start = cmp::min(y1, y2);
+            let end = cmp::max(y1, y2);
             for y in start..=end {
-                board[(line.x1 + y*1000) as usize] += 1;
+                board[(x1 + y*1000) as usize] += 1;
             }
         }
     }
@@ -68,29 +54,29 @@ fn solve_problem1(input: &str) -> u32 {
 }
 
 #[allow(unused)]
-fn solve_problem2(input: &str) -> u32 {
+fn solve_problem2(input: &str) -> i32 {
     let lines = parse_input(input);
     let mut board = vec![0; 1000*1000];
 
-    for line in lines {
-        if line.is_horizontal() {
-            let start = cmp::min(line.x1, line.x2);
-            let end = cmp::max(line.x1, line.x2);
+    for Line(x1, y1, x2, y2) in lines {
+        if (y1 == y2) {
+            let start = cmp::min(x1, x2);
+            let end = cmp::max(x1, x2);
             for x in start..=end {
-                board[(x + line.y1*1000) as usize] += 1;
+                board[(x + y1*1000) as usize] += 1;
             }
-        } else if line.is_vertical() {
-            let start = cmp::min(line.y1, line.y2);
-            let end = cmp::max(line.y1, line.y2);
+        } else if (x1 == x2) {
+            let start = cmp::min(y1, y2);
+            let end = cmp::max(y1, y2);
             for y in start..=end {
-                board[(line.x1 + y*1000) as usize] += 1;
+                board[(x1 + y*1000) as usize] += 1;
             }
         } else {
-            let mut x: i32 = line.x1 as i32;
-            let mut y: i32 = line.y1 as i32;
-            let dx: i32 = if line.x1 < line.x2 {1} else {-1};
-            let dy: i32 = if line.y1 < line.y2 {1} else {-1};
-            let l = if line.x1 < line.x2 {line.x2 - line.x1} else {line.x1 - line.x2};
+            let mut x: i32 = x1 as i32;
+            let mut y: i32 = y1 as i32;
+            let dx: i32 = if x1 < x2 {1} else {-1};
+            let dy: i32 = if y1 < y2 {1} else {-1};
+            let l = if x1 < x2 {x2 - x1} else {x1 - x2};
 
             for _ in 0..=l {
                 board[(x+ y*1000) as usize] += 1;
