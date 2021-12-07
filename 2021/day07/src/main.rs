@@ -23,11 +23,24 @@ fn solve_problem1(input: &str) -> i32 {
 }
 
 #[allow(unused)]
-fn solve_problem2(input: &str) -> i32 {
+fn solve_problem2(input: &str) -> usize {
     let mut crabs = parse_input(input);
-    crabs.sort();
+    let mut fule_cache = vec![0; 2000];
+    for i in 1..2000 {
+        fule_cache[i] = fule_cache[i-1] + i;
+    }
+
+    let mut heat_map = vec![0; 2000];
+
+    crabs.iter().for_each(|&c| {
+        for i in 0..2000 {
+            heat_map[i] += fule_cache[(c-(i as i32)).abs() as usize]
+        }
+    });
+
+    heat_map.sort();
     
-    0
+    heat_map[0]
 }
 
 #[cfg(test)]
@@ -44,7 +57,7 @@ mod test {
 
     #[test]
     fn problem2() {
-        let expected = 5;
+        let expected = 168;
         let actual = solve_problem2(TEST_INPUT);
         assert_eq!(expected, actual);
     }
