@@ -59,30 +59,18 @@ impl Decoder {
     }
 
     fn decode_segment(&self, s: &str) -> usize {
-        match s.len() {
-            2 => 1,
-            4 => 4,
-            3 => 7,
-            7 => 8,
-            5 => {
-                if self.common_with_one(s) == 2 {
-                    3
-                } else if self.common_with_four(s) == 3 {
-                    5
-                } else {
-                    2
-                }
-            },
-            6 => {
-                if self.common_with_one(s) == 1 {
-                    6
-                } else if self.common_with_four(s) == 4 {
-                    9
-                } else {
-                    0
-                }
-            }
-            _ => panic!()
+        match (s.len(), self.common_with_one(s), self.common_with_four(s)) {
+            (2,2,2) => 1,
+            (5,1,2) => 2,
+            (5,2,3) => 3,
+            (4,2,4) => 4,
+            (5,1,3) => 5,
+            (6,1,3) => 6,
+            (3,2,2) => 7,
+            (7,2,4) => 8,
+            (6,2,4) => 9,
+            (6,2,3) => 0,
+            (_,_,_) => panic!()
         }
     }
 
