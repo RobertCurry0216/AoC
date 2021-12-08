@@ -23,24 +23,18 @@ fn solve_problem1(input: &str) -> i32 {
 }
 
 #[allow(unused)]
-fn solve_problem2(input: &str) -> usize {
+fn solve_problem2(input: &str) -> i32 {
     let mut crabs = parse_input(input);
-    let mut fule_cache = vec![0; 2000];
-    for i in 1..2000 {
-        fule_cache[i] = fule_cache[i-1] + i;
-    }
-
-    let mut heat_map = vec![0; 2000];
+    let mut heat_map = vec![0i32; 2000];
 
     crabs.iter().for_each(|&c| {
-        for i in 0..2000 {
-            heat_map[i] += fule_cache[(c-(i as i32)).abs() as usize]
+        for i in 0..2000i32 {
+            let n = (c-i).abs();
+            heat_map[i as usize] += n * (n+1) / 2
         }
     });
 
-    heat_map.sort();
-    
-    heat_map[0]
+    *heat_map.iter().min().unwrap()
 }
 
 #[cfg(test)]
