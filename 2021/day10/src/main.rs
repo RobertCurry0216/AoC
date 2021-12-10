@@ -1,6 +1,7 @@
 fn main() {
     const INPUT: &str = include_str!("input.txt");
     //println!("input: {:?}", INPUT);
+    println!("--- Day 10: Syntax Scoring ---");
     println!("problem1: {}", solve_problem1(INPUT));
     println!("problem2: {}", solve_problem2(INPUT));
 }
