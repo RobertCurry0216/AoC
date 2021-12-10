@@ -10,31 +10,27 @@ fn parse_line(l: &str) -> (isize, Vec<char>) {
     for c in l.chars() {
         match c {
             ')' => {
-                if let Some(o) = stack.pop() {
-                    if o != '(' { return (3, vec![]) }
-                } else {
-                    return (3, vec![])
+                match stack.pop() {
+                    Some('(') => continue,
+                    _ => return (3, vec![])
                 }
             },
             ']' => {
-                if let Some(o) = stack.pop() {
-                    if o != '[' { return (57, vec![]) }
-                } else {
-                    return (57, vec![])
+                match stack.pop() {
+                    Some('[') => continue,
+                    _ => return (57, vec![])
                 }
             }
             '}' => {
-                if let Some(o) = stack.pop() {
-                    if o != '{' { return (1197, vec![]) }
-                } else {
-                    return (1197, vec![])
+                match stack.pop() {
+                    Some('{') => continue,
+                    _ => return (1197, vec![])
                 }
             },
             '>' => {
-                if let Some(o) = stack.pop() {
-                    if o != '<' { return (25137, vec![]) }
-                } else {
-                    return (25137, vec![])
+                match stack.pop() {
+                    Some('<') => continue,
+                    _ => return (25137, vec![])
                 }
             },
             _ => stack.push(c),
@@ -66,7 +62,7 @@ fn solve_problem2(input: &str) -> isize {
     let mut values = input.lines()
         .map(|s| s.trim())
         .map(|s| parse_line(s))
-        .map(|(_, cur)| complete_line(cur))
+        .map(|(_, l)| complete_line(l))
         .filter(|&v| v != 0)
         .collect::<Vec<_>>();
     values.sort();
