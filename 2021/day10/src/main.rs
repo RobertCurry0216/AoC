@@ -5,31 +5,98 @@ fn main() {
     println!("problem2: {}", solve_problem2(INPUT));
 }
 
-#[allow(unused)]
-fn solve_problem1(input: &str) -> i32 {
-    0
+fn parse_line(l: &str) -> (isize, Vec<char>) {
+    let mut stack = vec![];
+    for c in l.chars() {
+        match c {
+            ')' => {
+                if let Some(o) = stack.pop() {
+                    if o != '(' { return (3, vec![]) }
+                } else {
+                    return (3, vec![])
+                }
+            },
+            ']' => {
+                if let Some(o) = stack.pop() {
+                    if o != '[' { return (57, vec![]) }
+                } else {
+                    return (57, vec![])
+                }
+            }
+            '}' => {
+                if let Some(o) = stack.pop() {
+                    if o != '{' { return (1197, vec![]) }
+                } else {
+                    return (1197, vec![])
+                }
+            },
+            '>' => {
+                if let Some(o) = stack.pop() {
+                    if o != '<' { return (25137, vec![]) }
+                } else {
+                    return (25137, vec![])
+                }
+            },
+            _ => stack.push(c),
+        }
+    }
+    (0, stack.iter().rev().map(|c| *c).collect::<Vec<_>>())
 }
 
 #[allow(unused)]
-fn solve_problem2(input: &str) -> i32 {
-    0
+fn solve_problem1(input: &str) -> isize {
+    input.lines()
+        .map(|s| s.trim())
+        .map(|s| parse_line(s))
+        .fold(0, |acc, (cur, _)| acc + cur)
+}
+
+fn complete_line(chars: Vec<char>) -> isize {
+    chars.iter().fold(0, |acc, cur| (acc * 5) + (match cur {
+        '(' => 1,
+        '[' => 2,
+        '{' => 3,
+        '<' => 4,
+        _ => unreachable!()
+    }))
+}
+
+#[allow(unused)]
+fn solve_problem2(input: &str) -> isize {
+    let mut values = input.lines()
+        .map(|s| s.trim())
+        .map(|s| parse_line(s))
+        .map(|(_, cur)| complete_line(cur))
+        .filter(|&v| v != 0)
+        .collect::<Vec<_>>();
+    values.sort();
+    values[values.len()/2]
 }
 
 #[cfg(test)]
 mod test {
     use crate::{solve_problem1, solve_problem2};
-    const TEST_INPUT: &str = "";
+    const TEST_INPUT: &str = "[({(<(())[]>[[{[]{<()<>>
+        [(()[<>])]({[<{<<[]>>(
+        {([(<{}[<>[]}>{[]{[(<()>
+        (((({<>}<{<{<>}{[]{[]{}
+        [[<[([]))<([[{}[[()]]]
+        [{[{({}]{}}([{[{{{}}([]
+        {<[[]]>}<{[{[{[]{()[[[]
+        [<(<(<(<{}))><([]([]()
+        <{([([[(<>()){}]>(<<{{
+        <{([{{}}[<[[[<>{}]]]>[]]";
 
     #[test]
     fn problem1() {
-        let expected = 0;
+        let expected = 26397;
         let actual = solve_problem1(TEST_INPUT);
         assert_eq!(expected, actual);
     }
 
     #[test]
     fn problem2() {
-        let expected = 0;
+        let expected = 288957;
         let actual = solve_problem2(TEST_INPUT);
         assert_eq!(expected, actual);
     }
