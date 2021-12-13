@@ -1,11 +1,14 @@
-use std::collections::{HashMap, HashSet};
+use std::time::Instant;
+use std::collections::HashMap;
 
 fn main() {
     const INPUT: &str = include_str!("input.txt");
     //println!("input: {:?}", INPUT);
     println!("--- Day 12: Passage Pathing ---");
-    println!("problem1: {}", solve_problem1(INPUT));
-    println!("problem2: {}", solve_problem2(INPUT));
+    let start = Instant::now();
+    println!("problem1: {} duration: {:?}", solve_problem1(INPUT), start.elapsed());
+    let start = Instant::now();
+    println!("problem2: {} duration: {:?}", solve_problem2(INPUT), start.elapsed());
 }
 
 fn parse_input(input: &str) -> HashMap<&str, Vec<&str>> {
@@ -20,19 +23,29 @@ fn parse_input(input: &str) -> HashMap<&str, Vec<&str>> {
     map
 }
 
-fn find_paths(map: &HashMap<&str, Vec<&str>>, path: HashSet<&str>, curr: &str) -> usize {
+fn find_paths<'a>(
+    map: &HashMap<&'a str, Vec<&'a str>>,
+    path: &mut Vec<&'a str>,
+    curr: &'a str,
+    double_visited: bool
+) -> usize {
     if curr == "end" {
         return 1
     }
-    
+
     map.get(curr).unwrap().iter().map(|&cave| {
+        let mut double_visited = double_visited;
         if cave.chars().all(char::is_lowercase) && path.contains(&cave) {
-            0
-        } else {
-            let mut new_path = path.clone();
-            new_path.insert(cave);
-            find_paths(map, new_path, cave)
-        }
+            if cave == "start" || double_visited {
+                return 0;
+            } else {
+                double_visited = true;
+            }
+        } 
+        path.push(cave);
+        let v = find_paths(map, path, cave, double_visited);
+        let _ = path.pop();
+        v
     })
     .sum()
 }
@@ -40,37 +53,13 @@ fn find_paths(map: &HashMap<&str, Vec<&str>>, path: HashSet<&str>, curr: &str) -
 #[allow(unused)]
 fn solve_problem1(input: &str) -> usize {
     let map = parse_input(input);
-    find_paths(&map, HashSet::from(["start"]), "start")
-}
-
-
-fn find_paths_allow_small_cave_twice(map: &HashMap<&str, Vec<&str>>, path: HashSet<&str>, curr: &str, double_visited: bool) -> usize {
-    if curr == "end" {
-        return 1
-    }
-    
-    map.get(curr).unwrap().iter().map(|&cave| {
-        if cave.chars().all(char::is_lowercase) && path.contains(&cave) {
-            if cave == "start" || double_visited {
-                0
-            } else {
-                let mut new_path = path.clone();
-                new_path.insert(cave);
-                find_paths_allow_small_cave_twice(map, new_path, cave, true)
-            }
-        } else {
-            let mut new_path = path.clone();
-            new_path.insert(cave);
-            find_paths_allow_small_cave_twice(map, new_path, cave, double_visited)
-        }
-    })
-    .sum()
+    find_paths(&map, &mut vec!["start"], "start", true)
 }
 
 #[allow(unused)]
 fn solve_problem2(input: &str) -> usize {
     let map = parse_input(input);
-    find_paths_allow_small_cave_twice(&map, HashSet::from(["start"]), "start", false)
+    find_paths(&map, &mut vec!["start"], "start", false)
 }
 
 #[cfg(test)]
