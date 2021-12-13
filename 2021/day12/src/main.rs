@@ -69,16 +69,16 @@ fn find_paths(
         return 1
     }
 
-    map.get(curr).unwrap().iter().map(|cave| {
+    map.get(curr).unwrap().iter().map(|&cave| {
         let mut double_visited = double_visited;
-        if cave >= &SMALL_CAVES && path.contains(&&cave) {
-            if cave == &START || double_visited {
+        if cave >= SMALL_CAVES && path.contains(&cave) {
+            if cave == START || double_visited {
                 return 0;
             } else {
                 double_visited = true;
             }
         } 
-        path.push(*cave);
+        path.push(cave);
         let v = find_paths(map, path, &cave, double_visited);
         let _ = path.pop();
         v
