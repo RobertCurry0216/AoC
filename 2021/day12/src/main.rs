@@ -1,6 +1,10 @@
 use std::time::Instant;
 use std::collections::HashMap;
 
+const START: usize = 1000;
+const END: usize = 1001;
+const SMALL_CAVES: usize = 500;
+
 fn main() {
     const INPUT: &str = include_str!("input.txt");
     //println!("input: {:?}", INPUT);
@@ -11,39 +15,71 @@ fn main() {
     println!("problem2: {} duration: {:?}", solve_problem2(INPUT), start.elapsed());
 }
 
-fn parse_input(input: &str) -> HashMap<&str, Vec<&str>> {
+fn parse_input(input: &str) -> HashMap<usize, Vec<usize>> {
     let mut map = HashMap::new();
+    let mut count = 0;
+    let mut cave_index_map: HashMap<&str, usize> = HashMap::new();
+    cave_index_map.insert("start", START);
+    cave_index_map.insert("end", END);
 
     for line in input.lines() {
         let caves = line.trim().split('-').collect::<Vec<_>>();
-        map.entry(caves[0]).or_insert(vec![]).push(caves[1]);
-        map.entry(caves[1]).or_insert(vec![]).push(caves[0]);
-    }
 
+        let cave_a = match cave_index_map.get(caves[0]) {
+            Some(i) => *i,
+            None => {
+                count += 1;
+                let i = if caves[0].chars().all(char::is_lowercase) {
+                    count + SMALL_CAVES
+                } else {
+                    count
+                };
+                cave_index_map.insert(caves[0], i);
+                i
+            }
+        };
+
+        let cave_b = match cave_index_map.get(caves[1]) {
+            Some(i) => *i,
+            None => {
+                count += 1;
+                let i = if caves[1].chars().all(char::is_lowercase) {
+                    count + SMALL_CAVES
+                } else {
+                    count
+                };
+                cave_index_map.insert(caves[1], i);
+                i
+            }
+        };
+
+        map.entry(cave_a).or_insert(vec![]).push(cave_b);
+        map.entry(cave_b).or_insert(vec![]).push(cave_a);
+    }
     map
 }
 
-fn find_paths<'a>(
-    map: &HashMap<&'a str, Vec<&'a str>>,
-    path: &mut Vec<&'a str>,
-    curr: &'a str,
+fn find_paths(
+    map: &HashMap<usize, Vec<usize>>,
+    path: &mut Vec<usize>,
+    curr: &usize,
     double_visited: bool
 ) -> usize {
-    if curr == "end" {
+    if *curr == END {
         return 1
     }
 
-    map.get(curr).unwrap().iter().map(|&cave| {
+    map.get(curr).unwrap().iter().map(|cave| {
         let mut double_visited = double_visited;
-        if cave.chars().all(char::is_lowercase) && path.contains(&cave) {
-            if cave == "start" || double_visited {
+        if cave >= &SMALL_CAVES && path.contains(&&cave) {
+            if cave == &START || double_visited {
                 return 0;
             } else {
                 double_visited = true;
             }
         } 
-        path.push(cave);
-        let v = find_paths(map, path, cave, double_visited);
+        path.push(*cave);
+        let v = find_paths(map, path, &cave, double_visited);
         let _ = path.pop();
         v
     })
@@ -53,13 +89,13 @@ fn find_paths<'a>(
 #[allow(unused)]
 fn solve_problem1(input: &str) -> usize {
     let map = parse_input(input);
-    find_paths(&map, &mut vec!["start"], "start", true)
+    find_paths(&map, &mut vec![START], &START, true)
 }
 
 #[allow(unused)]
 fn solve_problem2(input: &str) -> usize {
     let map = parse_input(input);
-    find_paths(&map, &mut vec!["start"], "start", false)
+    find_paths(&map, &mut vec![START], &START, false)
 }
 
 #[cfg(test)]
