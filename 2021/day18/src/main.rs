@@ -72,19 +72,7 @@ impl SnailFish {
             for i in 0..v.len() -1 {
                 if d[i] == d[i+1] {
                     d.remove(i);
-                    loop {
-                        d[i] -= 1;
-
-                        let mut l = false;
-                        let mut r = false;
-                        if i > 0 {
-                            l = d[i] <= d[i-1];
-                        }
-                        if i+1 < d.len() {
-                            r = d[i] <= d[i+1];
-                        }
-                        if l || r || d.len() == 1 { break }
-                    }
+                    d[i] -= 1;
 
                     v[i] = v[i]*3 + v[i+1]*2;
                     v.remove(i+1);
