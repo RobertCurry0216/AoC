@@ -64,7 +64,7 @@ impl Scanner {
         let mut counts = HashMap::new();
         for (x, y, z) in self.beacons[dir].iter() {
             for (a,b,c) in other.iter() {
-                *counts.entry((x-a, y-b, z-c)).or_insert(0) += 1;
+                *counts.entry((a-x, b-y, c-z)).or_insert(0) += 1;
             }
         }
         
@@ -91,42 +91,24 @@ fn solve_problem1(input: &str) -> usize {
     let mut beacons = HashSet::new();
 
     let scanner_0 = scanners.remove(0);
-    'setup: for b in scanner_0.beacons.iter() {
+    let scanner_1 = scanners.remove(0);
+    'setup: for (i, b) in scanner_0.beacons.iter().enumerate() {
         beacons.clear();
 
         for &v in b.iter() {
             beacons.insert(v);
         }
 
-        for i in 0..scanners.len() {
-            for j in 0..24 {
-                let ((dx, dy, dz), c) = scanners[i].count_overlap(j, &beacons);
-                if c >= 12 {
-                    for &(x, y, z) in &scanners[i].beacons[j] {
-                        beacons.insert((x-dx, y-dy, z-dz));
-                    }
-                    scanners.remove(i);
-                    println!("found the start set");
-                    break 'setup;
+        for j in 0..24 {
+            let ((dx, dy, dz), c) = scanner_1.count_overlap(j, &beacons);
+            if c >= 12 {
+                for &(x, y, z) in &scanner_1.beacons[j] {
+                    beacons.insert((x-dx, y-dy, z-dz));
                 }
+                println!("found the start set");
+                break 'setup;
             }
         }
-    }
-
-    'outer: while scanners.len() > 0 {
-        for i in 0..scanners.len() {
-            for j in 0..24 {
-                let ((dx, dy, dz), c) = scanners[i].count_overlap(j, &beacons);
-                if c >= 12 {
-                    for &(x, y, z) in &scanners[i].beacons[j] {
-                        beacons.insert((x-dx, y-dy, z-dz));
-                    }
-                    scanners.remove(i);
-                    continue 'outer;
-                }
-            }
-        }
-        unreachable!()
     }
     
     beacons.len()
@@ -140,6 +122,17 @@ fn solve_problem2(input: &str) -> usize {
 #[cfg(test)]
 mod test {
     use crate::{solve_problem1, solve_problem2};
+    const TEST_SMALL: &str = "--- scanner 0 ---
+    0,2,0
+    4,1,0
+    3,3,0
+    
+    --- scanner 1 ---
+    -1,-1,0
+    -5,0,0
+    -2,1,0";
+
+
     const TEST_INPUT: &str = "--- scanner 0 ---
     404,-588,-901
     528,-643,409
