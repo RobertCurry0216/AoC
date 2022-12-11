@@ -13,8 +13,8 @@ const part2 = (filePath) => {
 
 
 const main = () => {
-  console.log(`part 1: ${part1("./input.txt")}`)
-  console.log(`part 2: ${part2("./input.txt")}`)
+  console.log(`part 1: ${part1("./sample.txt")}`)
+  console.log(`part 2: ${part2("./sample.txt")}`)
 }
 
 main()

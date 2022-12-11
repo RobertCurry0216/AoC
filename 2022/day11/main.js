@@ -65,9 +65,14 @@ const part1 = (filePath) => {
   return inspections[0] * inspections[1];
 };
 
+const gcd = (a, b) => b == 0 ? a : gcd(b, a % b);
+const lcm = (a, b) => (a * b) / gcd(Math.max(a,b), Math.min(a, b));
+
 const part2 = (filePath) => {
   const data = fs.readFileSync(filePath, "utf8").split(/\n/);
   const monkeys = makeMonkeys(data);
+
+  const factor = monkeys.reduce((acc, cur)=> lcm(acc, cur.test), monkeys[0].test)
 
   for (let i = 0; i < 10000; i++) {
     for (let j = 0; j < monkeys.length; j++) {
@@ -76,6 +81,7 @@ const part2 = (filePath) => {
         m.inspections += 1;
         let item = m.items.shift();
         item = m.op(item, m.opValue);
+        item = item % factor;
 
         if (item % m.test == 0) {
           monkeys[m.ifTrue].items.push(item);
@@ -88,14 +94,13 @@ const part2 = (filePath) => {
 
   const inspections = monkeys.map((m) => m.inspections);
   inspections.sort((a, b) => b - a);
-  console.log(inspections);
 
   return inspections[0] * inspections[1];
 };
 
 const main = () => {
   console.log(`part 1: ${part1("./input.txt")}`);
-  console.log(`part 2: ${part2("./sample.txt")}`);
+  console.log(`part 2: ${part2("./input.txt")}`);
 };
 
 main();
